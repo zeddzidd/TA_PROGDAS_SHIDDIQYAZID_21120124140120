@@ -1,0 +1,192 @@
+import tkinter as tk
+from tkinter import messagebox
+
+class LoginWindow:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Login")
+        self.root.geometry("300x200")
+        self.root.configure(bg="#FFFBCC")
+
+        tk.Label(root, text="Username:", font=("Arial", 12), bg="#FFFBCC").pack(pady=10)
+        self.username_entry = tk.Entry(root, font=("Arial", 12), width=20)
+        self.username_entry.pack(pady=5)
+
+        tk.Label(root, text="Password:", font=("Arial", 12), bg="#FFFBCC").pack(pady=10)
+        self.password_entry = tk.Entry(root, font=("Arial", 12), show="*", width=20)
+        self.password_entry.pack(pady=5)
+
+        login_button = tk.Button(root, text="Login", font=("Arial", 12), bg="#4CAF50", fg="white", command=self.check_credentials)
+        login_button.pack(pady=20)
+
+        self.correct_username = "yazidkeren"
+        self.correct_password = "yazid290106"
+
+    def check_credentials(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+
+        if username == self.correct_username and password == self.correct_password:
+            self.root.destroy()
+            self.open_main_app()
+        else:
+            messagebox.showerror("Login Gagal", "Username atau password salah. Silakan coba lagi.")
+
+    def open_main_app(self):
+        main_root = tk.Tk()
+        app = ShoppingCartApp(main_root)
+        main_root.mainloop()
+
+
+class ShoppingCartApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Pengelola Daftar Belanja")
+        self.root.geometry("600x700")
+        self.root.configure(bg="#FFFBCC")
+
+        self.items = []
+        self.total_price = 0
+
+        self.title_label = tk.Label(root, text="Daftar Belanja", font=("Arial", 20, "bold"), bg="#FFFBCC", fg="#333")
+        self.title_label.pack(pady=10)
+        self.glowing_text()
+
+        input_frame = tk.Frame(root, bg="#FFFBCC")
+        input_frame.pack(pady=20)
+
+        tk.Label(input_frame, text="Nama Item:", font=("Arial", 12), bg="#FFFBCC").grid(row=0, column=0, padx=5, pady=5)
+        self.item_name_entry = tk.Entry(input_frame, font=("Arial", 12), width=20)
+        self.item_name_entry.grid(row=0, column=1, padx=5, pady=5)
+
+        tk.Label(input_frame, text="Harga:", font=("Arial", 12), bg="#FFFBCC").grid(row=1, column=0, padx=5, pady=5)
+        self.item_price_entry = tk.Entry(input_frame, font=("Arial", 12), width=20)
+        self.item_price_entry.grid(row=1, column=1, padx=5, pady=5)
+
+        tk.Label(input_frame, text="Jumlah:", font=("Arial", 12), bg="#FFFBCC").grid(row=2, column=0, padx=5, pady=5)
+        self.item_quantity_entry = tk.Entry(input_frame, font=("Arial", 12), width=20)
+        self.item_quantity_entry.grid(row=2, column=1, padx=5, pady=5)
+
+        button_frame = tk.Frame(root, bg="#FFFBCC")
+        button_frame.pack(pady=10)
+
+        add_button = tk.Button(button_frame, text="Tambah Item", font=("Arial", 12), bg="#4CAF50", fg="white", command=self.add_item)
+        add_button.grid(row=0, column=0, padx=5)
+
+        delete_button = tk.Button(button_frame, text="Hapus Item", font=("Arial", 12), bg="#f44336", fg="white", command=self.remove_item)
+        delete_button.grid(row=0, column=1, padx=5)
+
+        total_button = tk.Button(button_frame, text="Hitung Total", font=("Arial", 12), bg="#008CBA", fg="white", command=self.calculate_total)
+        total_button.grid(row=0, column=2, padx=5)
+
+        clear_button = tk.Button(button_frame, text="Bersihkan Daftar", font=("Arial", 12), bg="#FF5722", fg="white", command=self.confirm_clear_cart)
+        clear_button.grid(row=0, column=3, padx=5)
+
+        summary_button = tk.Button(button_frame, text="Hasil Belanja", font=("Arial", 12), bg="#9C27B0", fg="white", command=self.generate_summary)
+        summary_button.grid(row=0, column=4, padx=5)
+
+        theme_button = tk.Button(button_frame, text="Ganti Tema", font=("Arial", 12), bg="#607D8B", fg="white", command=self.confirm_toggle_theme)
+        theme_button.grid(row=0, column=5, padx=5)
+
+        exit_button = tk.Button(button_frame, text="Keluar", font=("Arial", 12), bg="#555", fg="white", command=self.exit_app)
+        exit_button.grid(row=0, column=6, padx=5)
+
+        self.cart_listbox = tk.Listbox(root, width=50, height=10, font=("Arial", 12), bg="#FFFFFF", selectbackground="#4CAF50", activestyle="none")
+        self.cart_listbox.pack(pady=10)
+
+        self.total_label = tk.Label(root, text="Total Harga: Rp 0", font=("Arial", 14, "bold"), bg="#FFFBCC", fg="#333")
+        self.total_label.pack(pady=10)
+
+    def glowing_text(self):
+        colors = ["#FF0000", "#FFA500", "#FFFF00", "#008000", "#00FFFF", "#0000FF", "#800080"]
+        current_color = self.title_label.cget("fg")
+        next_color = colors[(colors.index(current_color) + 1) % len(colors)] if current_color in colors else colors[0]
+        self.title_label.config(fg=next_color)
+        self.title_label.after(500, self.glowing_text)
+
+    def add_item(self):
+        name = self.item_name_entry.get()
+        try:
+            price = float(self.item_price_entry.get())
+            quantity = int(self.item_quantity_entry.get())
+        except ValueError:
+            messagebox.showerror("Input Error", "Harga dan jumlah harus berupa angka.")
+            return
+
+        if not name:
+            messagebox.showerror("Input Error", "Nama item tidak boleh kosong.")
+            return
+
+        item_total = price * quantity
+        self.items.append({"name": name, "price": price, "quantity": quantity, "total": item_total})
+        self.cart_listbox.insert(tk.END, f"{name} - Jumlah: {quantity}, Harga: Rp {price}, Total: Rp {item_total}")
+
+        self.item_name_entry.delete(0, tk.END)
+        self.item_price_entry.delete(0, tk.END)
+        self.item_quantity_entry.delete(0, tk.END)
+
+        messagebox.showinfo("Item Ditambahkan", f"Item '{name}' telah berhasil ditambahkan ke daftar belanja.")
+
+    def remove_item(self):
+        selected = self.cart_listbox.curselection()
+        if selected:
+            index = selected[0]
+            item_name = self.items[index]['name']
+            self.cart_listbox.delete(index)
+            del self.items[index]
+            messagebox.showinfo("Item Dihapus", f"Item '{item_name}' telah berhasil dihapus dari daftar belanja.")
+        else:
+            messagebox.showwarning("Warning", "Pilih item yang ingin dihapus.")
+
+    def calculate_total(self):
+        if not self.items:
+            messagebox.showwarning("Peringatan", "Daftar belanja kosong. Tambahkan item terlebih dahulu sebelum menghitung total.")
+            return
+
+        confirm = messagebox.askyesno("Konfirmasi", "Apakah Anda yakin ingin menghitung total harga?")
+        if confirm:
+            self.total_price = sum(item['total'] for item in self.items)
+            self.total_label.config(text=f"Total Harga: Rp {self.total_price}")
+            messagebox.showinfo("Total Harga", f"Total harga belanja Anda adalah Rp {self.total_price}.")
+        else:
+            messagebox.showinfo("Dibatalkan", "Perhitungan total dibatalkan.")
+
+    def confirm_clear_cart(self):
+        confirm = messagebox.askyesno("Konfirmasi", "Apakah Anda yakin ingin menghapus semua item dari daftar belanja?")
+        if confirm:
+            self.clear_cart()
+
+    def clear_cart(self):
+        self.items.clear()
+        self.cart_listbox.delete(0, tk.END)
+        self.total_price = 0
+        self.total_label.config(text="Total Harga: Rp 0")
+        messagebox.showinfo("Bersihkan Daftar", "Semua item berhasil dihapus dari daftar belanja.")
+
+    def confirm_toggle_theme(self):
+        confirm = messagebox.askyesno("Konfirmasi", "Apakah Anda yakin ingin mengganti tema?")
+        if confirm:
+            self.toggle_theme()
+
+    def toggle_theme(self):
+        if self.root.cget("bg") == "#FFFBCC":
+            self.root.configure(bg="#333")
+            self.total_label.config(bg="#333", fg="white")
+        else:
+            self.root.configure(bg="#FFFBCC")
+            self.total_label.config(bg="#FFFBCC", fg="#333")
+
+    def generate_summary(self):
+        summary = "\n".join(f"{item['name']} - {item['quantity']} x Rp {item['price']} = Rp {item['total']}" for item in self.items)
+        summary += f"\n\nTotal Harga: Rp {self.total_price}"
+        messagebox.showinfo("Ringkasan Belanja", summary)
+
+    def exit_app(self):
+        confirm = messagebox.askyesno("Konfirmasi Keluar", "Apakah Anda yakin ingin keluar?")
+        if confirm:
+            self.root.quit()
+
+
+root = tk.Tk()
+login_app = LoginWindow(root)
+root.mainloop()
